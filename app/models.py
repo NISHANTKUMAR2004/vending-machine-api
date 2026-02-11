@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, CheckConstraint
 from sqlalchemy.dialects.sqlite import CHAR
 from sqlalchemy.orm import relationship
 
@@ -31,9 +31,11 @@ class Item(Base):
 
     id = Column(CHAR(36), primary_key=True, default=generate_uuid)
     name = Column(String(255), nullable=False)
+    # system may allow negative price for promotional items, so we should not set price as unsigned
     price = Column(Integer, nullable=False)
     slot_id = Column(CHAR(36), ForeignKey("slots.id", ondelete="SET NULL"), nullable=True)
     quantity = Column(Integer, nullable=False, default=0)
+    __table_args__ = (CheckConstraint("price > 0", name="check_price_positive"),)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
