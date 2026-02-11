@@ -21,8 +21,9 @@ class Slot(Base):
     current_item_count = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    # item will be in database  only relationship is defined here, so we need to set cascade to delete items when slot is deleted
+    items = relationship("Item",back_populates="slot",cascade="all, delete-orphan")
 
-    items = relationship("Item", back_populates="slot", cascade="save-update, merge")
 
 
 class Item(Base):
