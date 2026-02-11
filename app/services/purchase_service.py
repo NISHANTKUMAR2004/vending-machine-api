@@ -6,10 +6,13 @@ from app.models import Item
 
 
 def purchase(db: Session, item_id: str, cash_inserted: int) -> dict:
-    item = db.query(Item).filter(Item.id == item_id).first()
+    # item = db.query(Item).filter(Item.id == item_id).first()
+    item = db.query(Item).with_for_update().filter(Item.id == item_id).first()
+
     if not item:
         raise ValueError("item_not_found")
     time.sleep(0.05)  # demo: widens race window for concurrent purchase/restock
+    # if two users purchases same time it will allow both to purchase even if there is only 1 item left. This is because we are not locking the item record for update, so both transactions read the same initial quantity before either of them updates it. This can lead to overselling if multiple purchases happen concurrently on the same item. To prevent this, we would need to implement some form of locking or use database transactions with appropriate isolation levels to ensure that only one purchase can proceed at a time for a given item.
     if item.quantity <= 0:
         raise ValueError("out_of_stock")
     if cash_inserted < item.price:
