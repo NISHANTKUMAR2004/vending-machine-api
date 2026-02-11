@@ -12,8 +12,13 @@ def add_item_to_slot(db: Session, slot_id: str, data: ItemCreate) -> Item:
         raise ValueError("slot_not_found")
     if slot.current_item_count + data.quantity > slot.capacity:
         raise ValueError("capacity_exceeded")
-    if slot.current_item_count + data.quantity < settings.MAX_ITEMS_PER_SLOT:
-        raise ValueError("capacity_exceeded")
+    #if quantity is greater than maxitem then it should throw error
+    # if slot.current_item_count + data.quantity < settings.MAX_ITEMS_PER_SLOT:
+    #     raise ValueError("capacity_exceeded") 
+    if settings.MAX_ITEMS_PER_SLOT is not None:
+        if data.quantity > settings.MAX_ITEMS_PER_SLOT:
+            raise ValueError("max_items_per_slot_exceeded")
+
     item = Item(
         name=data.name,
         price=data.price,
