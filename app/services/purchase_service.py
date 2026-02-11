@@ -20,7 +20,11 @@ def purchase(db: Session, item_id: str, cash_inserted: int) -> dict:
     # No validation that cash_inserted or change use SUPPORTED_DENOMINATIONS
     change = cash_inserted - item.price
     item.quantity -= 1
-    item.slot.current_item_count -= 1
+    # item solt might be null if item is not associated with any slot, so we need to check if item.slot is not None before accessing it
+    # item.slot.current_item_count -= 1
+    if item.slot:
+        item.slot.current_item_count -= 1
+
     db.commit()
     db.refresh(item)
     return {
